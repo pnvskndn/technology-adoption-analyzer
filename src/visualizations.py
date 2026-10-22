@@ -22,7 +22,7 @@ TEAL   = "#0E7C86"   # secondary data, positive values
 CYAN   = "#19A3B8"   # emphasis, forecasts, interaction
 AMBER  = "#D98A2B"
 NEG    = "#B45A2B"   # negative contributions / declines only
-SLATE  = "#5C7682"   # muted labels, neutral series
+SLATE  = "#4A6673"   # muted labels (dark enough to read)
 GRID   = "#D3E2E6"   # chart gridlines
 ZERO   = "#8DA8B1"   # zero lines
 
@@ -39,7 +39,6 @@ COLORS = {
     "grey":      SLATE,
 }
 
-# Saturated enough to read solidly at box-plot fill opacity
 REGION_COLORS = {
     "East Asia":      "#1793A8",
     "Southeast Asia": "#0E7C86",
@@ -63,7 +62,6 @@ RANK_SHADES = [
     "#15899A", "#117181", "#0D5A66", "#09424B", "#06303C",
 ]
 
-# Sequential scale for the choropleth — floor darkened so low values still read
 SEQUENTIAL_TEAL = [
     [0.0,  "#D3E6E9"],
     [0.30, "#9DCBD4"],
@@ -87,12 +85,24 @@ ISO2_TO_ISO3 = {
 
 
 def _exhibit(fig):
-    """Apply consistent exhibit typography to any figure. Call before returning."""
+    """
+    Apply consistent exhibit typography. Call before returning any figure.
+    Axis ticks, axis titles, legends and colorbars are coloured EXPLICITLY —
+    Plotly's default template renders them in a pale grey that is close to
+    unreadable against a white page.
+    """
     fig.update_layout(
         font=dict(family=FONT_BODY, size=13, color=INK),
         title=dict(
             font=dict(family=FONT_DISPLAY, size=19, color=INK),
             x=0.01, xanchor="left",
+        ),
+        legend=dict(
+            font=dict(family=FONT_BODY, size=12, color=INK),
+            title=dict(font=dict(family=FONT_BODY, size=12, color=SLATE)),
+            bgcolor="rgba(255,255,255,0.9)",
+            bordercolor=GRID,
+            borderwidth=1,
         ),
         hoverlabel=dict(
             bgcolor="#FFFFFF",
@@ -100,8 +110,22 @@ def _exhibit(fig):
             font=dict(family=FONT_BODY, size=12, color=INK),
         ),
     )
-    fig.update_xaxes(automargin=True)
-    fig.update_yaxes(automargin=True)
+    axis_style = dict(
+        automargin=True,
+        tickfont=dict(family=FONT_BODY, size=12, color=INK),
+        title_font=dict(family=FONT_BODY, size=13, color=SLATE),
+    )
+    fig.update_xaxes(**axis_style)
+    fig.update_yaxes(**axis_style)
+
+    # Colorbar text (choropleth and any continuous scale)
+    try:
+        fig.update_coloraxes(
+            colorbar_tickfont=dict(family=FONT_MONO, size=11, color=INK),
+            colorbar_title_font=dict(family=FONT_BODY, size=12, color=SLATE),
+        )
+    except Exception:
+        pass
     return fig
 
 
@@ -138,7 +162,7 @@ def plot_historical_trend(df, country_code, country_name):
 def plot_forecast(historical_df, forecast_df, country_name):
     """
     Historical data plus Prophet forecast and confidence interval.
-    Legend anchors top-RIGHT so it never collides with the left-aligned title.
+    Legend sits BELOW the plot so it cannot collide with the title.
     """
     fig = go.Figure()
 
@@ -186,9 +210,9 @@ def plot_forecast(historical_df, forecast_df, country_name):
         paper_bgcolor="rgba(0,0,0,0)",
         xaxis=dict(showgrid=False, linecolor=GRID),
         yaxis=dict(gridcolor=GRID, range=[0, 105]),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02,
-                    xanchor="right", x=1),
-        margin=dict(l=10, r=10, t=52, b=10),
+        legend=dict(orientation="h", yanchor="top", y=-0.16,
+                    xanchor="left", x=0),
+        margin=dict(l=10, r=10, t=48, b=70),
     )
     return _exhibit(fig)
 
@@ -196,7 +220,7 @@ def plot_forecast(historical_df, forecast_df, country_name):
 def plot_shap_waterfall(shap_result, country_name, base_value):
     """
     SHAP contributions for one country.
-    Cyan = pushes adoption up. Terracotta = pushes adoption down.
+    Teal = pushes adoption up. Terracotta = pushes adoption down.
     X-range padded both sides so outside labels never touch the feature names.
     """
     if shap_result is None or shap_result.empty:
@@ -231,7 +255,7 @@ def plot_shap_waterfall(shap_result, country_name, base_value):
         xaxis=dict(showgrid=True, gridcolor=GRID,
                    zeroline=True, zerolinecolor=ZERO, zerolinewidth=2,
                    range=[x_lo, x_hi]),
-        yaxis=dict(showgrid=False, tickfont=dict(color=INK)),
+        yaxis=dict(showgrid=False),
         margin=dict(l=10, r=30, t=74, b=10),
         height=370,
     )
@@ -248,7 +272,6 @@ def plot_global_feature_importance(importance_df):
     n = len(top)
     x_hi = float(top["mean_abs_shap"].max()) * 1.22
 
-    # ascending order -> lightest for the smallest value, deepest for the largest
     shades = [RANK_SHADES[int(round(i * (len(RANK_SHADES) - 1) / max(n - 1, 1)))]
               for i in range(n)]
 
@@ -268,7 +291,7 @@ def plot_global_feature_importance(importance_df):
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
         xaxis=dict(showgrid=True, gridcolor=GRID, range=[0, x_hi]),
-        yaxis=dict(showgrid=False, title="", tickfont=dict(color=INK)),
+        yaxis=dict(showgrid=False, title=""),
         margin=dict(l=10, r=20, t=44, b=10),
     )
     return _exhibit(fig)
@@ -319,7 +342,9 @@ def plot_choropleth(df, year=None):
         margin=dict(l=0, r=0, t=44, b=0),
         height=460,
         coloraxis_colorbar=dict(
-            title="Renewable %", thickness=14,
+            title=dict(text="Renewable %",
+                       font=dict(family=FONT_BODY, size=12, color=SLATE)),
+            thickness=14,
             outlinecolor=GRID, outlinewidth=1,
             tickfont=dict(family=FONT_MONO, size=11, color=INK),
         ),
@@ -334,6 +359,7 @@ def plot_cluster_scatter(cluster_df):
 
     cluster_df = cluster_df.copy()
     cluster_df["cluster_label"] = "Cluster " + cluster_df["cluster"].astype(str)
+    cluster_df = cluster_df.sort_values("cluster")
 
     if TARGET_COL in cluster_df.columns:
         cluster_df["size"] = cluster_df[TARGET_COL].clip(1, 100) ** 0.5 * 3 + 7
@@ -360,9 +386,11 @@ def plot_cluster_scatter(cluster_df):
         paper_bgcolor="rgba(0,0,0,0)",
         xaxis=dict(showgrid=True, gridcolor=GRID, zeroline=False, linecolor=GRID),
         yaxis=dict(showgrid=True, gridcolor=GRID, zeroline=False, linecolor=GRID),
-        legend_title="Cluster",
-        margin=dict(l=10, r=10, t=44, b=10),
-        height=440,
+        # Legend below the plot — avoids being clipped at the container edge
+        legend=dict(orientation="h", yanchor="top", y=-0.14,
+                    xanchor="left", x=0, title=dict(text="")),
+        margin=dict(l=10, r=10, t=44, b=70),
+        height=470,
     )
     return _exhibit(fig)
 
@@ -445,7 +473,6 @@ def plot_region_comparison(df, year=None):
         color_discrete_map=REGION_COLORS,
         category_orders={"region": region_order},
     )
-    # Solid fills, ink outlines, defined whiskers
     fig.update_traces(
         marker=dict(opacity=0.95, size=7, line=dict(color=INK, width=0.8)),
         line=dict(width=1.6),
@@ -456,7 +483,7 @@ def plot_region_comparison(df, year=None):
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
         xaxis=dict(gridcolor=GRID, range=[-2, 105], linecolor=GRID),
-        yaxis=dict(showgrid=False, tickfont=dict(color=INK, size=13)),
+        yaxis=dict(showgrid=False),
         showlegend=False,
         margin=dict(l=10, r=10, t=44, b=10),
         height=420,
