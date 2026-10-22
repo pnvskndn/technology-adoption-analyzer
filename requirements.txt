@@ -1,0 +1,15 @@
+# Version pins — do not remove:
+#   numpy<2.0    numpy 2.x breaks pickle compatibility of cached data/models
+#   xgboost<3.0  xgboost 3.x changed model serialization; SHAP's tree parser
+#                cannot read the new base_score format
+numpy<2.0
+xgboost<3.0
+
+pandas
+scikit-learn
+shap
+prophet
+plotly
+streamlit
+wbdata
+requests

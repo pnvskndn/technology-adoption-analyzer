@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Technology Adoption Analyzer — Renewable Energy Transition Research</title>
+<meta name="description" content="A 44-country analysis of what drives renewable energy adoption, and a measure of the gap between realised and structurally expected deployment.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#06303C; --ink-2:#0C4657; --teal:#0E7C86; --cyan:#19A3B8;
+  --amber:#D98A2B; --paper:#F4F8F9; --line:#DBE7EA; --muted:#5C7682;
+  --pos:#0E7C86; --neg:#C2703D;
+  --display:'Barlow Condensed',Impact,sans-serif;
+  --body:'Barlow',-apple-system,Segoe UI,sans-serif;
+  --mono:'IBM Plex Mono',Menlo,monospace;
+  color-scheme:light only;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{font-family:var(--body);color:var(--ink);background:#fff;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+/* ---------- demo modal ---------- */
+#demo-overlay{position:fixed;inset:0;background:rgba(6,48,60,.72);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;backdrop-filter:blur(3px)}
+#demo-overlay.hidden{display:none}
+.modal{background:#fff;max-width:520px;width:100%;border-top:5px solid var(--cyan);padding:34px 32px 28px;box-shadow:0 24px 60px rgba(6,48,60,.3)}
+.modal .tag{font-family:var(--display);font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);font-weight:600}
+.modal h2{font-family:var(--display);font-size:30px;line-height:1.15;margin:8px 0 14px;text-transform:uppercase;letter-spacing:.01em}
+.modal p{color:var(--muted);font-size:15.5px;margin-bottom:14px}
+.modal .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.btn{display:inline-block;font-family:var(--body);font-weight:600;font-size:13.5px;letter-spacing:.06em;text-transform:uppercase;padding:12px 22px;border:1.5px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;text-decoration:none;transition:.18s}
+.btn:hover{background:var(--teal);border-color:var(--teal)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--ink);color:#fff}
+
+/* ---------- nav ---------- */
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;gap:20px}
+.brand{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);text-decoration:none;white-space:nowrap}
+.brand span{color:var(--cyan)}
+.navlinks{display:flex;gap:26px;align-items:center}
+.navlinks a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500}
+.navlinks a:hover{color:var(--teal)}
+.navlinks .btn{padding:9px 16px;font-size:12px}
+@media(max-width:860px){.navlinks a:not(.btn){display:none}}
+
+/* ---------- hero ---------- */
+header{background:linear-gradient(170deg,#06303C 0%,#0C4657 58%,#13606E 100%);color:#fff;padding:74px 0 0;position:relative;overflow:hidden}
+header::after{content:"";position:absolute;right:-120px;top:-80px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(25,163,184,.26),transparent 68%)}
+.eyebrow{font-family:var(--display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);font-weight:600;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--cyan)}
+header h1{font-family:var(--display);font-size:clamp(38px,6vw,68px);line-height:1.03;text-transform:uppercase;letter-spacing:.005em;margin:16px 0 18px;max-width:17ch;font-weight:700;position:relative;z-index:1}
+header .lede{font-size:clamp(16px,2vw,19px);color:#C3DCE2;max-width:62ch;position:relative;z-index:1}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;position:relative;z-index:1}
+.chip{font-family:var(--mono);font-size:12.5px;padding:6px 13px;border:1px solid rgba(255,255,255,.26);color:#C3DCE2;border-radius:2px}
+.hero-acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;position:relative;z-index:1}
+.hero-acts .btn{background:var(--cyan);border-color:var(--cyan);color:#06303C}
+.hero-acts .btn:hover{background:#fff;border-color:#fff}
+.hero-acts .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.45)}
+.hero-acts .btn.ghost:hover{background:#fff;color:var(--ink);border-color:#fff}
+.statband{display:grid;grid-template-columns:repeat(4,1fr);margin-top:60px;border-top:1px solid rgba(255,255,255,.17);position:relative;z-index:1}
+.statband div{padding:24px 20px 30px;border-right:1px solid rgba(255,255,255,.17)}
+.statband div:last-child{border-right:0}
+.statband .n{font-family:var(--mono);font-size:clamp(24px,3.4vw,34px);font-weight:500;color:#fff;line-height:1.1}
+.statband .l{font-family:var(--display);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#8FB6C0;margin-top:7px;font-weight:600}
+@media(max-width:760px){.statband{grid-template-columns:repeat(2,1fr)}.statband div:nth-child(2){border-right:0}}
+
+/* ---------- sections ---------- */
+section{padding:76px 0;border-bottom:1px solid var(--line)}
+section.tint{background:var(--paper)}
+.slabel{font-family:var(--display);font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);font-weight:600;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.slabel::before{content:"";width:9px;height:9px;background:var(--cyan)}
+h2.sec{font-family:var(--display);font-size:clamp(28px,4vw,42px);line-height:1.08;text-transform:uppercase;letter-spacing:.01em;max-width:22ch;font-weight:700}
+.sub{color:var(--muted);font-size:17px;max-width:64ch;margin-top:14px}
+
+.findings{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin-top:42px;border:1px solid var(--line)}
+.finding{background:#fff;padding:30px 26px}
+.finding .num{font-family:var(--mono);font-size:13px;color:var(--cyan);font-weight:500}
+.finding h3{font-family:var(--display);font-size:23px;text-transform:uppercase;line-height:1.14;margin:10px 0 12px;letter-spacing:.01em}
+.finding p{color:var(--muted);font-size:15px}
+.finding .so{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:14.5px;color:var(--ink)}
+.finding .so b{font-family:var(--display);letter-spacing:.1em;text-transform:uppercase;font-size:12px;color:var(--teal);display:block;margin-bottom:4px}
+@media(max-width:900px){.findings{grid-template-columns:1fr}}
+
+/* ---------- gap chart ---------- */
+.chartwrap{margin-top:40px;background:#fff;border:1px solid var(--line);padding:28px 24px 20px}
+.chartwrap.on-tint{background:#fff}
+.chart-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.chart-head h3{font-family:var(--display);font-size:21px;text-transform:uppercase;letter-spacing:.02em}
+.legend{display:flex;gap:18px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px}
+.bars{display:flex;flex-direction:column;gap:9px}
+.row{display:grid;grid-template-columns:120px 1fr 72px;align-items:center;gap:12px}
+.row .cname{font-size:14px;font-weight:500;text-align:right;color:var(--ink)}
+.track{position:relative;height:22px;background:linear-gradient(90deg,transparent calc(50% - .5px),var(--line) calc(50% - .5px),var(--line) calc(50% + .5px),transparent calc(50% + .5px))}
+.bar{position:absolute;top:2px;height:18px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.row .val{font-family:var(--mono);font-size:13.5px;font-weight:500}
+.axisnote{font-size:12.5px;color:var(--muted);margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-style:italic}
+@media(max-width:620px){.row{grid-template-columns:86px 1fr 58px;gap:8px}.row .cname{font-size:12.5px}.row .val{font-size:12px}}
+
+/* ---------- method ---------- */
+.methods{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);margin-top:42px;border:1px solid var(--line)}
+.m{background:#fff;padding:28px 26px}
+.m .k{font-family:var(--mono);font-size:12.5px;color:var(--cyan)}
+.m h3{font-family:var(--display);font-size:21px;text-transform:uppercase;margin:8px 0 10px;letter-spacing:.015em}
+.m p{color:var(--muted);font-size:15px}
+.m .tech{font-family:var(--mono);font-size:12.5px;color:var(--teal);margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.m.highlight{border-left:4px solid var(--cyan)}
+@media(max-width:760px){.methods{grid-template-columns:1fr}}
+
+/* ---------- validation callout ---------- */
+.callout{margin-top:40px;background:var(--ink);color:#fff;padding:42px 38px;display:grid;grid-template-columns:1fr auto;gap:34px;align-items:center}
+.callout h3{font-family:var(--display);font-size:clamp(23px,3vw,32px);text-transform:uppercase;line-height:1.12;max-width:24ch}
+.callout p{color:#A9C7CF;margin-top:12px;font-size:15.5px;max-width:56ch}
+.callout .big{font-family:var(--mono);font-size:clamp(34px,5vw,52px);color:var(--cyan);line-height:1;white-space:nowrap}
+.callout .big small{display:block;font-family:var(--display);font-size:12px;letter-spacing:.15em;color:#8FB6C0;margin-top:10px;text-transform:uppercase}
+@media(max-width:760px){.callout{grid-template-columns:1fr;padding:32px 26px}}
+
+/* ---------- limitations ---------- */
+.lims{margin-top:36px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.lim{background:#fff;border:1px solid var(--line);border-left:3px solid var(--amber);padding:20px 22px}
+.lim h4{font-family:var(--display);font-size:16px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px}
+.lim p{font-size:14.5px;color:var(--muted)}
+@media(max-width:760px){.lims{grid-template-columns:1fr}}
+
+/* ---------- next ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:40px}
+.step{background:#fff;padding:24px 20px}
+.step .n{font-family:var(--mono);font-size:26px;color:var(--line);font-weight:500;line-height:1}
+.step h4{font-family:var(--display);font-size:17px;text-transform:uppercase;margin:10px 0 8px;letter-spacing:.03em}
+.step p{font-size:14px;color:var(--muted)}
+@media(max-width:880px){.steps{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.steps{grid-template-columns:1fr}}
+
+/* ---------- footer ---------- */
+footer{background:var(--ink);color:#8FB6C0;padding:56px 0 34px;font-size:14.5px}
+footer .top{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,.14)}
+footer .brand{color:#fff;font-size:21px}
+footer a{color:var(--cyan);text-decoration:none}
+footer a:hover{text-decoration:underline}
+footer .links{display:flex;gap:24px;flex-wrap:wrap}
+footer .fine{margin-top:24px;font-size:13px;color:#5C7682;max-width:70ch}
+.demo-pill{display:inline-block;font-family:var(--display);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber);padding:4px 10px;margin-bottom:14px;font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- ====== DEMO NOTICE ====== -->
+<div id="demo-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="dm-t">
+    <div class="tag">Demonstration version</div>
+    <h2 id="dm-t">This is a showcase of the research platform</h2>
+    <p>This page presents the findings and methodology of the Technology Adoption Analyzer as a static summary. It does not run the models.</p>
+    <p>The full interactive platform — with live per-country attribution, forecasts, scenario modelling and backtested accuracy — runs separately.</p>
+    <div class="acts">
+      <a class="btn" id="dm-live" href="#" target="_blank" rel="noopener">Open the live platform</a>
+      <button class="btn ghost" onclick="closeDemo()">Continue to summary</button>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <div class="wrap">
+    <a href="#" class="brand">Technology Adoption <span>Analyzer</span></a>
+    <div class="navlinks">
+      <a href="#findings">Findings</a>
+      <a href="#gap">Structural gap</a>
+      <a href="#method">Method</a>
+      <a href="#next">Next</a>
+      <a class="btn" id="nav-live" href="#" target="_blank" rel="noopener">Live platform</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Renewable energy transition research</div>
+    <h1>What actually drives renewable energy adoption</h1>
+    <p class="lede">A cross-country analysis of renewable electricity deployment, and a measure of the distance between what countries achieve and what their structural conditions would support.</p>
+    <div class="chips">
+      <span class="chip" id="chip-countries"></span>
+      <span class="chip" id="chip-years"></span>
+      <span class="chip">World Bank indicators</span>
+      <span class="chip">Backtested forecasts</span>
+    </div>
+    <div class="hero-acts">
+      <a class="btn" id="hero-live" href="#" target="_blank" rel="noopener">Explore the live platform</a>
+      <a class="btn ghost" id="hero-repo" href="#" target="_blank" rel="noopener">View source</a>
+    </div>
+    <div class="statband" id="statband"></div>
+  </div>
+</header>
+
+<section id="findings">
+  <div class="wrap">
+    <div class="slabel">Principal findings</div>
+    <h2 class="sec">Momentum, not money, separates the leaders</h2>
+    <p class="sub">Three results hold across the panel. Together they suggest that transition outcomes are governed more by the state a system is already in than by the economic conditions surrounding it.</p>
+    <div class="findings">
+      <div class="finding">
+        <div class="num">01</div>
+        <h3>Prior adoption dominates</h3>
+        <p>A country's renewable share in the previous year predicts its current share far more strongly than income, urbanisation or education. Deployment behaves as momentum.</p>
+        <div class="so"><b>Implication</b>Incentives at the margin do little in systems that have not started. What compounds is early capacity.</div>
+      </div>
+      <div class="finding">
+        <div class="num">02</div>
+        <h3>Wealth does not predict adoption</h3>
+        <p>Grouping countries by adoption profile separates high-income renewable leaders from high-income fossil-incumbent economies at comparable income levels.</p>
+        <div class="so"><b>Implication</b>Screening markets by income class points at the wrong countries. Energy mix and history matter more.</div>
+      </div>
+      <div class="finding">
+        <div class="num">03</div>
+        <h3>The gap maps the headroom</h3>
+        <p>Comparing realised adoption against the level a country's fundamentals support reveals wide variation — some far above expectation, others far below.</p>
+        <div class="so"><b>Implication</b>A large shortfall is quantified, addressable potential rather than a structural ceiling.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gap" class="tint">
+  <div class="wrap">
+    <div class="slabel">Signature measure</div>
+    <h2 class="sec">The structural gap</h2>
+    <p class="sub">A second model is trained on structural fundamentals alone — income, growth, urbanisation, education, electricity consumption and incumbent fossil share — with every history-dependent term removed. It estimates the adoption level a country with those characteristics typically reaches. The difference from what the country actually achieves is the structural gap.</p>
+    <div class="chartwrap on-tint">
+      <div class="chart-head">
+        <h3>Realised minus structurally expected adoption</h3>
+        <div class="legend">
+          <span><i style="background:var(--pos)"></i>Above expectation</span>
+          <span><i style="background:var(--neg)"></i>Below expectation</span>
+        </div>
+      </div>
+      <div class="bars" id="bars"></div>
+      <p class="axisnote">Percentage points of renewable electricity share. Positive values indicate a country outperforming what its structural conditions would suggest; negative values indicate unrealised potential. Associational benchmark, not a causal estimate.</p>
+    </div>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <div class="slabel">Methodology</div>
+    <h2 class="sec">Four models over one panel</h2>
+    <p class="sub">Annual World Bank indicators, cleaned and imputed, with a strict temporal split — earlier years for training, later years held out — so that no model is evaluated on data preceding what it learned from.</p>
+    <div class="methods">
+      <div class="m">
+        <div class="k">01</div>
+        <h3>Per-country attribution</h3>
+        <p>Rather than estimating one average effect per variable across all countries, the model's prediction is decomposed for each country individually, so the drivers identified for India can differ from those for Norway.</p>
+        <div class="tech">Gradient boosting · SHAP values</div>
+      </div>
+      <div class="m">
+        <div class="k">02</div>
+        <h3>Country forecasts</h3>
+        <p>A five-year projection of renewable share for every country in the panel, each with an explicit uncertainty interval rather than a single point estimate.</p>
+        <div class="tech">Prophet · 80% intervals</div>
+      </div>
+      <div class="m">
+        <div class="k">03</div>
+        <h3>Adoption archetypes</h3>
+        <p>Countries are grouped by their energy and economic profile rather than by region or income band, surfacing peer sets that conventional classifications obscure.</p>
+        <div class="tech">K-means · PCA projection</div>
+      </div>
+      <div class="m highlight">
+        <div class="k">04</div>
+        <h3>Structural benchmark</h3>
+        <p>A model deliberately blind to each country's own history, estimating the adoption its fundamentals support. Its residual is the structural gap — the quantity of interest rather than error to minimise.</p>
+        <div class="tech">Gradient boosting · lag terms excluded</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tint">
+  <div class="wrap">
+    <div class="slabel">Validation</div>
+    <h2 class="sec">Measured accuracy, not claimed precision</h2>
+    <p class="sub">Rather than reporting how closely the models fit the data they were trained on, forecasts are tested against history. The models are trained only on data up to a cut-off year, asked to project the years that followed, and compared against what actually occurred — repeated across successive cut-offs.</p>
+    <div class="callout">
+      <div>
+        <h3>Every projection carries its own track record</h3>
+        <p>For each country the platform reports how far its forecasts have historically missed, and how often reality fell inside the stated uncertainty range. A forecast without an error history is an assertion; with one, it is evidence.</p>
+      </div>
+      <div class="big" id="bt-value">
+        <small id="bt-label">Historical forecast error</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="slabel">Stated plainly</div>
+    <h2 class="sec">What this analysis does not establish</h2>
+    <div class="lims">
+      <div class="lim">
+        <h4>Association, not causation</h4>
+        <p>The models identify which conditions accompany higher adoption. They do not establish that changing a variable would produce a given change in outcome.</p>
+      </div>
+      <div class="lim">
+        <h4>A partial measure of transition</h4>
+        <p>Renewable share of electricity excludes heat and transport, and counts a large hydropower endowment the same as actively deployed wind and solar — conflating geography with policy effort.</p>
+      </div>
+      <div class="lim">
+        <h4>No institutional variables</h4>
+        <p>The dataset contains no measure of regulatory quality, market structure or policy stringency, which are likely to matter considerably. The structural gap currently absorbs them.</p>
+      </div>
+      <div class="lim">
+        <h4>Sparse annual data</h4>
+        <p>Roughly two decades of annual observations per country, with World Bank indicators lagging reality by about two years. Small by the standards of the model class used.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="next" class="tint">
+  <div class="wrap">
+    <div class="slabel">In development</div>
+    <h2 class="sec">Measuring policy where no index reaches</h2>
+    <p class="sub">Established policy stringency indices cover mainly high-income economies — excluding much of the Gulf, South and Southeast Asia and Africa, which are largely the same countries showing the widest structural gaps. The next phase constructs that missing measure from policy text.</p>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><h4>Assemble</h4><p>Structured policy databases, supplemented by national energy strategy documents for countries they cover thinly.</p></div>
+      <div class="step"><div class="n">02</div><h4>Classify</h4><p>Natural language processing over policy text, scoring instruments by type, scope and bindingness.</p></div>
+      <div class="step"><div class="n">03</div><h4>Validate</h4><p>Correlate the derived score against an established index across the countries where both exist.</p></div>
+      <div class="step"><div class="n">04</div><h4>Test</h4><p>Add the measure to the model and ask whether policy absence explains the structural gap.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="demo-pill">Demonstration site</div>
+    <div class="top">
+      <div>
+        <div class="brand" style="font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.04em">Technology Adoption Analyzer</div>
+        <p style="margin-top:8px;max-width:44ch">Independent research on the determinants of renewable energy deployment.</p>
+      </div>
+      <div class="links">
+        <a id="foot-live" href="#" target="_blank" rel="noopener">Live platform</a>
+        <a id="foot-repo" href="#" target="_blank" rel="noopener">Source code</a>
+        <a id="foot-mail" href="#">Contact</a>
+      </div>
+    </div>
+    <p class="fine">This page is a static demonstration of an active research project and does not execute the underlying models. Figures are drawn from the live platform and are associational benchmarks, not causal estimates or forecasts of policy outcomes. Built by Pranauv Skandhan.</p>
+  </div>
+</footer>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   ⚠  REPLACE EVERY VALUE IN THIS BLOCK WITH REAL FIGURES
+      READ OFF YOUR LIVE STREAMLIT APP BEFORE PUBLISHING.
+      The values below are placeholders for layout only.
+   ══════════════════════════════════════════════════════════════════ */
+const DATA = {
+
+  // --- links ---
+  liveUrl : "https://YOUR-APP.streamlit.app",
+  repoUrl : "https://github.com/pnvskndn/TTA",
+  email   : "you@example.com",
+
+  // --- scope (sidebar of your app) ---
+  countries : 44,
+  yearFrom  : 2001,
+  yearTo    : 2021,
+
+  // --- hero stat band ---
+  stats : [
+    { n: "44",   l: "Countries analysed" },
+    { n: "21",   l: "Years of data" },
+    { n: "4",    l: "Model families" },
+    { n: "8",    l: "Indicators" }
+  ],
+
+  // --- structural gap, in percentage points (Benchmark page, per country)
+  //     Replace names and values with your real computed gaps.
+  gaps : [
+    { c: "Norway",       v:  0 },
+    { c: "Brazil",       v:  0 },
+    { c: "Denmark",      v:  0 },
+    { c: "New Zealand",  v:  0 },
+    { c: "India",        v:  0 },
+    { c: "Germany",      v:  0 },
+    { c: "United States",v:  0 },
+    { c: "Qatar",        v:  0 },
+    { c: "Kuwait",       v:  0 },
+    { c: "Saudi Arabia", v:  0 }
+  ],
+
+  // --- backtesting callout (forecast tab caption) ---
+  backtestValue : "±— pp",
+  backtestLabel : "Typical 3-year forecast error"
+};
+/* ════════════════════ end of editable block ════════════════════ */
+
+/* demo modal */
+const overlay = document.getElementById('demo-overlay');
+if (sessionStorage.getItem('taa-demo-seen')) overlay.classList.add('hidden');
+function closeDemo(){
+  overlay.classList.add('hidden');
+  try { sessionStorage.setItem('taa-demo-seen','1'); } catch(e){}
+}
+overlay.addEventListener('click', e => { if (e.target === overlay) closeDemo(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDemo(); });
+
+/* links */
+['dm-live','nav-live','hero-live','foot-live'].forEach(id=>{
+  const el=document.getElementById(id); if(el) el.href=DATA.liveUrl;
+});
+['hero-repo','foot-repo'].forEach(id=>{
+  const el=document.getElementById(id); if(el) el.href=DATA.repoUrl;
+});
+document.getElementById('foot-mail').href = 'mailto:' + DATA.email;
+
+/* scope chips */
+document.getElementById('chip-countries').textContent = DATA.countries + ' countries';
+document.getElementById('chip-years').textContent     = DATA.yearFrom + '–' + DATA.yearTo;
+
+/* stat band */
+document.getElementById('statband').innerHTML = DATA.stats.map(s =>
+  `<div><div class="n">${s.n}</div><div class="l">${s.l}</div></div>`).join('');
+
+/* backtest callout */
+document.getElementById('bt-value').insertAdjacentHTML('afterbegin', DATA.backtestValue);
+document.getElementById('bt-label').textContent = DATA.backtestLabel;
+
+/* diverging gap chart */
+(function(){
+  const rows = DATA.gaps.slice().sort((a,b)=>b.v-a.v);
+  const max  = Math.max(1, ...rows.map(r=>Math.abs(r.v)));
+  const host = document.getElementById('bars');
+  host.innerHTML = rows.map(r=>{
+    const pct  = (Math.abs(r.v)/max)*50;
+    const pos  = r.v >= 0;
+    const side = pos ? `left:50%;width:0;background:var(--pos)`
+                     : `right:50%;width:0;background:var(--neg)`;
+    return `<div class="row">
+      <div class="cname">${r.c}</div>
+      <div class="track"><div class="bar" style="${side}" data-w="${pct}"></div></div>
+      <div class="val" style="color:${pos?'var(--pos)':'var(--neg)'}">${r.v>0?'+':''}${r.v.toFixed(1)}</div>
+    </div>`;
+  }).join('');
+
+  const grow = () => host.querySelectorAll('.bar')
+                        .forEach(b => b.style.width = b.dataset.w + '%');
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver((e,o)=>{
+      if(e[0].isIntersecting){ grow(); o.disconnect(); }
+    },{threshold:.25}).observe(host);
+  } else grow();
+})();
+</script>
+</body>
+</html>
