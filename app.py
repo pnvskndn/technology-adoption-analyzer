@@ -183,13 +183,18 @@ def inject_css():
         white-space: normal !important;
         overflow-wrap: anywhere !important;
     }
+    /* Delta — theme colours rather than Streamlit's default green/red pills */
     [data-testid="stMetricDelta"],
-    [data-testid="stMetricDelta"] > div {
+    [data-testid="stMetricDelta"] > div,
+    [data-testid="stMetricDelta"] div {
         font-family: 'IBM Plex Mono', monospace !important;
         font-size: 0.72rem !important;
         white-space: normal !important;
         line-height: 1.35 !important;
+        color: #0E7C86 !important;
+        background: transparent !important;
     }
+    [data-testid="stMetricDelta"] svg { fill: #0E7C86 !important; }
     /* Sidebar metrics live in half-width columns — size down to fit */
     [data-testid="stSidebar"] [data-testid="stMetricValue"],
     [data-testid="stSidebar"] [data-testid="stMetricValue"] > div {
@@ -259,6 +264,26 @@ def inject_css():
     }
     [data-testid="stSlider"] { padding: 0.2rem 0 !important; }
 
+    /* ── Accent override for native widgets ──
+       Streamlit's default primary is rgb(255,75,75). These rules pin the
+       accent to cyan even if .streamlit/config.toml fails to load. ── */
+    [data-testid="stSlider"] [role="slider"] {
+        background-color: #19A3B8 !important;
+        border-color: #19A3B8 !important;
+        box-shadow: none !important;
+    }
+    [data-testid="stSlider"] div[style*="rgb(255, 75, 75)"],
+    [data-testid="stSlider"] div[style*="rgba(255, 75, 75"],
+    [data-testid="stRadio"] div[style*="rgb(255, 75, 75)"],
+    div[style*="rgb(255, 75, 75)"] {
+        background-color: #19A3B8 !important;
+        border-color: #19A3B8 !important;
+    }
+    [data-baseweb="tab-highlight"],
+    [data-baseweb="tab-border"] {
+        background-color: #19A3B8 !important;
+    }
+
     /* ── Tabs ── */
     [data-baseweb="tab-list"] {
         gap: 0 !important;
@@ -274,18 +299,16 @@ def inject_css():
         letter-spacing: 0.1em !important;
         padding: 0.6rem 1.15rem !important;
         background: transparent !important;
-        border-bottom: 3px solid transparent !important;
     }
-    [data-baseweb="tab"][aria-selected="true"] {
-        color: #06303C !important;
-        border-bottom: 3px solid #19A3B8 !important;
-    }
+    [data-baseweb="tab"][aria-selected="true"] { color: #06303C !important; }
     [data-testid="stTabsContent"] {
         background: #FFFFFF !important;
         padding-top: 0.8rem !important;
     }
 
-    /* ── Button ── */
+    /* ── Button ──
+       The global div/span/p colour rule would otherwise paint the button's
+       inner label navy-on-navy, so force white on every descendant. ── */
     .stButton > button {
         font-family: 'Barlow', sans-serif !important;
         font-size: 0.8rem !important;
@@ -293,11 +316,17 @@ def inject_css():
         letter-spacing: 0.08em !important;
         text-transform: uppercase !important;
         background: #06303C !important;
-        color: #FFFFFF !important;
         border: 1.5px solid #06303C !important;
         border-radius: 0 !important;
         padding: 0.5rem 1.5rem !important;
         transition: all 0.18s ease !important;
+    }
+    .stButton > button,
+    .stButton > button *,
+    .stButton > button p,
+    .stButton > button div,
+    .stButton > button span {
+        color: #FFFFFF !important;
     }
     .stButton > button:hover {
         background: #0E7C86 !important;
@@ -605,7 +634,7 @@ def page_country_explorer(df, models):
                                       models["test_df"], code, models["features"])
             if sr is not None:
                 st.plotly_chart(plot_shap_waterfall(sr, name, bv), use_container_width=True)
-                st.caption("SHAP values show each factor's contribution to the model prediction. Cyan = increases adoption. Terracotta = decreases.")
+                st.caption("SHAP values show each factor's contribution to the model prediction. Teal = increases adoption. Terracotta = decreases.")
             else:
                 st.info("SHAP attribution not available for this country in the test set.")
 

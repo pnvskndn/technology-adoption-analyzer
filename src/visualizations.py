@@ -21,10 +21,10 @@ INK2   = "#0C4657"
 TEAL   = "#0E7C86"   # secondary data, positive values
 CYAN   = "#19A3B8"   # emphasis, forecasts, interaction
 AMBER  = "#D98A2B"
-NEG    = "#C2703D"   # negative contributions / declines only
+NEG    = "#B45A2B"   # negative contributions / declines only
 SLATE  = "#5C7682"   # muted labels, neutral series
-GRID   = "#DBE7EA"   # chart gridlines
-ZERO   = "#9FB6BE"   # zero lines
+GRID   = "#D3E2E6"   # chart gridlines
+ZERO   = "#8DA8B1"   # zero lines
 
 FONT_BODY    = "Barlow, Segoe UI, sans-serif"
 FONT_DISPLAY = "Barlow Condensed, Barlow, sans-serif"
@@ -39,29 +39,35 @@ COLORS = {
     "grey":      SLATE,
 }
 
+# Saturated enough to read solidly at box-plot fill opacity
 REGION_COLORS = {
-    "East Asia":      "#19A3B8",
+    "East Asia":      "#1793A8",
     "Southeast Asia": "#0E7C86",
-    "South Asia":     "#4C6EA8",
+    "South Asia":     "#3F5F99",
     "Europe":         "#06303C",
-    "North America":  "#5C7682",
-    "Latin America":  "#D98A2B",
-    "Africa":         "#3F8F5F",
-    "Middle East":    "#C2703D",
-    "Oceania":        "#7FB2A5",
+    "North America":  "#4A6673",
+    "Latin America":  "#C4801F",
+    "Africa":         "#2F7A4C",
+    "Middle East":    "#B45A2B",
+    "Oceania":        "#5A9E8E",
 }
 
-# Categorical sequence for cluster scatter — ordered for maximum separation
 CLUSTER_SEQUENCE = [
-    "#19A3B8", "#06303C", "#D98A2B", "#C2703D",
-    "#0E7C86", "#4C6EA8", "#3F8F5F", "#5C7682",
+    "#19A3B8", "#06303C", "#C4801F", "#B45A2B",
+    "#0E7C86", "#3F5F99", "#2F7A4C", "#4A6673",
 ]
 
-# Sequential scale for continuous values (choropleth, importance)
+# Rank shades for bar charts — every bar stays legible regardless of value spread
+RANK_SHADES = [
+    "#8CC6CF", "#6FB8C3", "#52AAB7", "#2EA0B2", "#19A3B8",
+    "#15899A", "#117181", "#0D5A66", "#09424B", "#06303C",
+]
+
+# Sequential scale for the choropleth — floor darkened so low values still read
 SEQUENTIAL_TEAL = [
-    [0.0,  "#EEF5F6"],
-    [0.30, "#C2DFE3"],
-    [0.55, "#7FC0C9"],
+    [0.0,  "#D3E6E9"],
+    [0.30, "#9DCBD4"],
+    [0.55, "#55AEBE"],
     [0.80, "#19A3B8"],
     [1.0,  "#06303C"],
 ]
@@ -90,11 +96,10 @@ def _exhibit(fig):
         ),
         hoverlabel=dict(
             bgcolor="#FFFFFF",
-            bordercolor="#C9DCE0",
+            bordercolor="#9DBBC2",
             font=dict(family=FONT_BODY, size=12, color=INK),
         ),
     )
-    # Let axes grow their own margins so tick labels are never clipped
     fig.update_xaxes(automargin=True)
     fig.update_yaxes(automargin=True)
     return fig
@@ -115,14 +120,15 @@ def plot_historical_trend(df, country_code, country_name):
         color_discrete_sequence=[INK],
     )
     fig.update_traces(
-        line_width=2.5, marker_size=6,
-        fill="tozeroy", fillcolor="rgba(6, 48, 60, 0.06)",
+        line_width=3, marker_size=7,
+        marker=dict(line=dict(width=0)),
+        fill="tozeroy", fillcolor="rgba(14, 124, 134, 0.22)",
     )
     fig.update_layout(
         hovermode="x unified",
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(showgrid=False),
+        xaxis=dict(showgrid=False, linecolor=GRID),
         yaxis=dict(gridcolor=GRID, range=[0, 105]),
         margin=dict(l=10, r=10, t=44, b=10),
     )
@@ -141,8 +147,10 @@ def plot_forecast(historical_df, forecast_df, country_name):
         y=historical_df["y"],
         mode="lines+markers",
         name="Historical",
-        line=dict(color=INK, width=2.5),
-        marker=dict(size=6),
+        line=dict(color=INK, width=3),
+        marker=dict(size=7),
+        fill="tozeroy",
+        fillcolor="rgba(14, 124, 134, 0.18)",
     ))
 
     future_mask = forecast_df["ds"].dt.year > historical_df["ds"].dt.year.max()
@@ -155,7 +163,7 @@ def plot_forecast(historical_df, forecast_df, country_name):
             y=pd.concat([fc_future["yhat_upper"],
                          fc_future["yhat_lower"][::-1]]),
             fill="toself",
-            fillcolor="rgba(25, 163, 184, 0.13)",
+            fillcolor="rgba(25, 163, 184, 0.26)",
             line=dict(color="rgba(0,0,0,0)"),
             name="80% confidence",
             hoverinfo="skip",
@@ -165,8 +173,8 @@ def plot_forecast(historical_df, forecast_df, country_name):
             y=fc_future["yhat"],
             mode="lines+markers",
             name="Forecast",
-            line=dict(color=CYAN, width=2.5, dash="dash"),
-            marker=dict(size=7, symbol="diamond"),
+            line=dict(color=CYAN, width=3, dash="dash"),
+            marker=dict(size=8, symbol="diamond"),
         ))
 
     fig.update_layout(
@@ -176,7 +184,7 @@ def plot_forecast(historical_df, forecast_df, country_name):
         hovermode="x unified",
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(showgrid=False),
+        xaxis=dict(showgrid=False, linecolor=GRID),
         yaxis=dict(gridcolor=GRID, range=[0, 105]),
         legend=dict(orientation="h", yanchor="bottom", y=1.02,
                     xanchor="right", x=1),
@@ -195,7 +203,7 @@ def plot_shap_waterfall(shap_result, country_name, base_value):
         return go.Figure()
 
     top = shap_result.head(8).sort_values("shap_value")
-    colors = [CYAN if v >= 0 else NEG for v in top["shap_value"]]
+    colors = [TEAL if v >= 0 else NEG for v in top["shap_value"]]
 
     vals = top["shap_value"].astype(float)
     vmax, vmin = float(vals.max()), float(vals.min())
@@ -207,10 +215,10 @@ def plot_shap_waterfall(shap_result, country_name, base_value):
         x=top["shap_value"],
         y=top["feature"],
         orientation="h",
-        marker_color=colors,
+        marker=dict(color=colors, line=dict(color=INK, width=0.8)),
         text=[f"{v:+.2f}" for v in top["shap_value"]],
         textposition="outside",
-        textfont=dict(family=FONT_MONO, size=11),
+        textfont=dict(family=FONT_MONO, size=11, color=INK),
         cliponaxis=False,
     ))
 
@@ -221,9 +229,9 @@ def plot_shap_waterfall(shap_result, country_name, base_value):
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
         xaxis=dict(showgrid=True, gridcolor=GRID,
-                   zeroline=True, zerolinecolor=ZERO, zerolinewidth=1.5,
+                   zeroline=True, zerolinecolor=ZERO, zerolinewidth=2,
                    range=[x_lo, x_hi]),
-        yaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False, tickfont=dict(color=INK)),
         margin=dict(l=10, r=30, t=74, b=10),
         height=370,
     )
@@ -231,31 +239,36 @@ def plot_shap_waterfall(shap_result, country_name, base_value):
 
 
 def plot_global_feature_importance(importance_df):
-    """Global mean |SHAP| per feature, with data labels."""
+    """
+    Global mean |SHAP| per feature.
+    Bars are shaded by RANK, not by value — with one dominant feature a
+    value-scaled gradient renders every other bar almost white.
+    """
     top = importance_df.head(10).sort_values("mean_abs_shap")
+    n = len(top)
     x_hi = float(top["mean_abs_shap"].max()) * 1.22
 
-    fig = px.bar(
-        top,
-        x="mean_abs_shap", y="feature",
+    # ascending order -> lightest for the smallest value, deepest for the largest
+    shades = [RANK_SHADES[int(round(i * (len(RANK_SHADES) - 1) / max(n - 1, 1)))]
+              for i in range(n)]
+
+    fig = go.Figure(go.Bar(
+        x=top["mean_abs_shap"],
+        y=top["feature"],
         orientation="h",
-        title="Global Feature Importance (mean |SHAP|)",
-        labels={"mean_abs_shap": "Mean |SHAP value|", "feature": ""},
-        color="mean_abs_shap",
-        color_continuous_scale=[[0, "#CFE6EA"], [1, INK]],
-        text_auto=".2f",
-    )
-    fig.update_traces(
+        marker=dict(color=shades, line=dict(color=INK, width=0.8)),
+        text=[f"{v:.2f}" for v in top["mean_abs_shap"]],
         textposition="outside",
-        textfont=dict(family=FONT_MONO, size=11),
+        textfont=dict(family=FONT_MONO, size=11, color=INK),
         cliponaxis=False,
-    )
+    ))
     fig.update_layout(
+        title="Global Feature Importance (mean |SHAP|)",
+        xaxis_title="Mean |SHAP value|",
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
-        coloraxis_showscale=False,
         xaxis=dict(showgrid=True, gridcolor=GRID, range=[0, x_hi]),
-        yaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False, title="", tickfont=dict(color=INK)),
         margin=dict(l=10, r=20, t=44, b=10),
     )
     return _exhibit(fig)
@@ -293,20 +306,22 @@ def plot_choropleth(df, year=None):
               + (f" — {year}" if year else " (most recent)"),
         labels={TARGET_COL: "Renewable %"},
     )
+    fig.update_traces(marker_line_color=INK, marker_line_width=0.6)
     fig.update_layout(
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
         geo=dict(
             showframe=False,
-            showcoastlines=True, coastlinecolor="#C9DCE0",
-            showland=True, landcolor="#F0F5F6",
-            showocean=True, oceancolor="#F8FBFC",
+            showcoastlines=True, coastlinecolor="#A9C4CB",
+            showland=True, landcolor="#E7EEF0",
+            showocean=True, oceancolor="#F5F9FA",
         ),
         margin=dict(l=0, r=0, t=44, b=0),
-        height=440,
+        height=460,
         coloraxis_colorbar=dict(
-            title="Renewable %", thickness=12,
-            tickfont=dict(family=FONT_MONO, size=11),
+            title="Renewable %", thickness=14,
+            outlinecolor=GRID, outlinewidth=1,
+            tickfont=dict(family=FONT_MONO, size=11, color=INK),
         ),
     )
     return _exhibit(fig)
@@ -321,7 +336,7 @@ def plot_cluster_scatter(cluster_df):
     cluster_df["cluster_label"] = "Cluster " + cluster_df["cluster"].astype(str)
 
     if TARGET_COL in cluster_df.columns:
-        cluster_df["size"] = cluster_df[TARGET_COL].clip(1, 100) ** 0.5 * 3 + 6
+        cluster_df["size"] = cluster_df[TARGET_COL].clip(1, 100) ** 0.5 * 3 + 7
         size_col = "size"
         hover_data = {TARGET_COL: ":.1f", "size": False}
     else:
@@ -339,14 +354,15 @@ def plot_cluster_scatter(cluster_df):
         labels={"pc1": "Principal Component 1", "pc2": "Principal Component 2"},
         color_discrete_sequence=CLUSTER_SEQUENCE,
     )
+    fig.update_traces(marker=dict(opacity=0.92, line=dict(color=INK, width=1)))
     fig.update_layout(
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(showgrid=True, gridcolor=GRID, zeroline=False),
-        yaxis=dict(showgrid=True, gridcolor=GRID, zeroline=False),
+        xaxis=dict(showgrid=True, gridcolor=GRID, zeroline=False, linecolor=GRID),
+        yaxis=dict(showgrid=True, gridcolor=GRID, zeroline=False, linecolor=GRID),
         legend_title="Cluster",
         margin=dict(l=10, r=10, t=44, b=10),
-        height=420,
+        height=440,
     )
     return _exhibit(fig)
 
@@ -363,12 +379,12 @@ def plot_policy_simulation(baseline, modified, country_name,
     fig.add_trace(go.Bar(
         x=["Baseline", scenario_label],
         y=[baseline, modified],
-        marker_color=["#C3D6DA", CYAN],
+        marker=dict(color=["#9FB7BE", TEAL], line=dict(color=INK, width=1)),
         text=[f"{baseline:.1f}%", f"{modified:.1f}%"],
         textposition="outside",
-        textfont=dict(family=FONT_MONO, size=13),
+        textfont=dict(family=FONT_MONO, size=13, color=INK),
         cliponaxis=False,
-        width=0.4,
+        width=0.42,
     ))
 
     change = modified - baseline
@@ -387,6 +403,7 @@ def plot_policy_simulation(baseline, modified, country_name,
         yaxis=dict(title="Renewable Energy (%)",
                    range=[0, max(baseline, modified) * 1.3 + 10],
                    gridcolor=GRID),
+        xaxis=dict(linecolor=GRID),
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
         showlegend=False,
@@ -399,7 +416,7 @@ def plot_policy_simulation(baseline, modified, country_name,
 def plot_region_comparison(df, year=None):
     """
     Horizontal box plot of renewable % by region, sorted by median.
-    Horizontal orientation gives every region name full room.
+    Fills rendered solid rather than washed, with ink outlines.
     """
     if year is None:
         plot_df = (df.sort_values("year")
@@ -428,13 +445,20 @@ def plot_region_comparison(df, year=None):
         color_discrete_map=REGION_COLORS,
         category_orders={"region": region_order},
     )
+    # Solid fills, ink outlines, defined whiskers
+    fig.update_traces(
+        marker=dict(opacity=0.95, size=7, line=dict(color=INK, width=0.8)),
+        line=dict(width=1.6),
+        fillcolor=None,
+        opacity=0.95,
+    )
     fig.update_layout(
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(gridcolor=GRID, range=[-2, 105]),
-        yaxis=dict(showgrid=False),
+        xaxis=dict(gridcolor=GRID, range=[-2, 105], linecolor=GRID),
+        yaxis=dict(showgrid=False, tickfont=dict(color=INK, size=13)),
         showlegend=False,
         margin=dict(l=10, r=10, t=44, b=10),
-        height=400,
+        height=420,
     )
     return _exhibit(fig)
